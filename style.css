@@ -1,5 +1,5 @@
 ﻿/* ==========================================================================
-   4RGED TODO — CLEAN MODERN DESKTOP UI DESIGN
+   4RGED TODO — FULL SCREEN CLEAN WHITE DESKTOP UI DESIGN
    ========================================================================== */
 
 * {
@@ -10,53 +10,47 @@
     -webkit-font-smoothing: antialiased;
 }
 
-body {
-    min-height: 100vh;
+html, body {
     width: 100%;
-    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 50%, #2563eb 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 30px 20px;
+    height: 100%;
+    overflow: hidden;
+    background-color: #ffffff;
     color: #1e293b;
 }
 
-/* Main Floating Window */
+/* Full Screen Window Container */
 .window-container {
-    width: 100%;
-    max-width: 1120px;
-    height: 720px;
-    max-height: 90vh;
+    width: 100vw;
+    height: 100vh;
     background: #ffffff;
-    border-radius: 20px;
-    box-shadow: 0 25px 70px rgba(15, 23, 42, 0.22), 0 0 1px rgba(0, 0, 0, 0.1);
     display: flex;
     overflow: hidden;
 }
 
 /* ==========================================================================
-   LEFT SIDEBAR
+   LEFT SIDEBAR (FULL HEIGHT)
    ========================================================================== */
 .sidebar {
-    width: 210px;
+    width: 260px;
     background: #f8fafc;
     border-right: 1px solid #e2e8f0;
-    padding: 24px 16px;
+    padding: 28px 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     flex-shrink: 0;
+    height: 100vh;
 }
 
 /* macOS Window Controls */
 .sidebar-top {
-    margin-bottom: 24px;
+    margin-bottom: 28px;
 }
 
 .window-dots {
     display: flex;
     align-items: center;
-    gap: 7px;
+    gap: 8px;
 }
 
 .dot {
@@ -74,7 +68,7 @@ body {
 .sidebar-nav {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     flex: 1;
 }
 
@@ -82,12 +76,12 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 14px;
+    padding: 12px 16px;
     border: none;
     background: transparent;
     border-radius: 10px;
     color: #64748b;
-    font-size: 14px;
+    font-size: 14.5px;
     font-weight: 500;
     cursor: pointer;
     text-align: left;
@@ -96,8 +90,8 @@ body {
 }
 
 .nav-item i {
-    font-size: 15px;
-    width: 18px;
+    font-size: 16px;
+    width: 20px;
     text-align: center;
 }
 
@@ -122,18 +116,18 @@ body {
 }
 
 .floating-add-btn {
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
     background-color: #2563eb;
     color: #ffffff;
     border: none;
-    font-size: 16px;
+    font-size: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+    box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3);
     transition: all 0.2s ease;
 }
 
@@ -143,21 +137,22 @@ body {
 }
 
 /* ==========================================================================
-   RIGHT MAIN CONTENT AREA
+   RIGHT MAIN CONTENT AREA (FULL SCREEN EXPANDABLE)
    ========================================================================== */
 .main-content {
     flex: 1;
-    padding: 34px 40px;
+    height: 100vh;
+    padding: 36px 56px;
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 24px;
     background: #ffffff;
     overflow-y: auto;
 }
 
 /* Sleek Scrollbar */
 .main-content::-webkit-scrollbar {
-    width: 6px;
+    width: 7px;
 }
 
 .main-content::-webkit-scrollbar-track {
@@ -195,7 +190,7 @@ body {
 }
 
 .main-title {
-    font-size: 30px;
+    font-size: 32px;
     font-weight: 800;
     color: #0f172a;
     letter-spacing: -0.5px;
@@ -205,15 +200,15 @@ body {
 .top-filter-pills {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
     background: #f1f5f9;
-    padding: 4px;
+    padding: 5px;
     border-radius: 14px;
 }
 
 .top-filter-pills .filter-btn {
-    padding: 6px 16px;
-    font-size: 13px;
+    padding: 7px 18px;
+    font-size: 13.5px;
     font-weight: 600;
     border: none;
     background: transparent;
@@ -243,7 +238,7 @@ body {
 #inner_cont {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     width: 100%;
 }
 
@@ -255,8 +250,8 @@ body {
     background: #f8fafc;
     border: 1.5px solid #e2e8f0;
     border-radius: 12px;
-    padding: 0 16px;
-    height: 46px;
+    padding: 0 18px;
+    height: 48px;
     transition: all 0.2s ease;
 }
 
@@ -268,7 +263,7 @@ body {
 
 .input-icon {
     color: #94a3b8;
-    font-size: 15px;
+    font-size: 16px;
 }
 
 #input {
@@ -277,7 +272,7 @@ body {
     border: none;
     outline: none;
     background: transparent;
-    font-size: 14.5px;
+    font-size: 15px;
     color: #0f172a;
     font-weight: 500;
 }
@@ -288,13 +283,13 @@ body {
 }
 
 #addbtn {
-    height: 46px;
-    padding: 0 24px;
+    height: 48px;
+    padding: 0 28px;
     background: #2563eb;
     color: #ffffff;
     border: none;
     border-radius: 12px;
-    font-size: 14px;
+    font-size: 14.5px;
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -311,17 +306,17 @@ body {
    SECTION SUBHEADING
    ========================================================================== */
 .section-heading {
-    margin-top: 2px;
+    margin-top: 4px;
 }
 
 .section-heading h2 {
-    font-size: 16px;
+    font-size: 17px;
     font-weight: 700;
     color: #334155;
 }
 
 /* ==========================================================================
-   TODO CONTAINER & CLEARLY DEFINED TASK BOXES
+   TODO CONTAINER & CLEARLY DEFINED TASK BOXES (GRID)
    ========================================================================== */
 #todo-container {
     width: 100%;
@@ -329,10 +324,10 @@ body {
 
 #task-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 18px;
     list-style: none;
-    padding-bottom: 20px;
+    padding-bottom: 30px;
 }
 
 /* Clearly Defined Task Card */
@@ -340,12 +335,12 @@ body {
     background: #ffffff;
     border: 1.5px solid #e2e8f0;
     border-radius: 14px;
-    padding: 16px;
+    padding: 18px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 140px;
-    gap: 12px;
+    min-height: 150px;
+    gap: 14px;
     box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
@@ -366,14 +361,14 @@ body {
 }
 
 .status-badge {
-    font-size: 11px;
+    font-size: 11.5px;
     font-weight: 600;
-    padding: 3px 8px;
+    padding: 3px 9px;
     border-radius: 6px;
     letter-spacing: 0.2px;
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
 }
 
 .status-badge.active-badge {
@@ -398,8 +393,8 @@ body {
 .task-checkbox {
     appearance: none;
     -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     border: 1.5px solid #cbd5e1;
     border-radius: 6px;
     outline: none;
@@ -425,8 +420,8 @@ body {
 
 .task-checkbox:checked::after {
     content: "";
-    width: 4px;
-    height: 8px;
+    width: 4.5px;
+    height: 9px;
     border: solid white;
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
@@ -436,7 +431,7 @@ body {
 
 /* Task Title Text */
 .task {
-    font-size: 15px;
+    font-size: 15.5px;
     font-weight: 600;
     color: #0f172a;
     line-height: 1.45;
@@ -464,14 +459,14 @@ body {
     align-items: center;
     justify-content: flex-end;
     gap: 8px;
-    padding-top: 10px;
+    padding-top: 12px;
     border-top: 1px solid #f1f5f9;
 }
 
 .btn-container button {
-    height: 28px;
-    padding: 0 10px;
-    font-size: 12px;
+    height: 30px;
+    padding: 0 12px;
+    font-size: 12.5px;
     font-weight: 600;
     border-radius: 6px;
     cursor: pointer;
@@ -506,21 +501,31 @@ body {
 }
 
 /* ==========================================================================
-   RESPONSIVE DESIGN
+   RESPONSIVE DESIGN FOR MOBILE / TABLET
    ========================================================================== */
 @media (max-width: 850px) {
+    html, body {
+        overflow: auto;
+    }
+
     .window-container {
         flex-direction: column;
         height: auto;
-        max-height: none;
+        min-height: 100vh;
     }
 
     .sidebar {
         width: 100%;
+        height: auto;
         border-right: none;
         border-bottom: 1px solid #e2e8f0;
         flex-direction: row;
         align-items: center;
+        padding: 16px 20px;
+    }
+
+    .sidebar-top {
+        margin-bottom: 0;
     }
 
     .sidebar-nav {
@@ -541,5 +546,6 @@ body {
 
     .main-content {
         padding: 24px 20px;
+        height: auto;
     }
 }
