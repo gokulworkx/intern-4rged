@@ -14,10 +14,14 @@ function ensureEverDoLayout() {
             <div class="window-container">
                 <aside class="sidebar">
                     <div class="sidebar-top">
-                        <div class="window-dots">
-                            <span class="dot dot-red"></span>
-                            <span class="dot dot-yellow"></span>
-                            <span class="dot dot-green"></span>
+                        <div class="sidebar-brand">
+                            <div class="brand-icon-box">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                            <div class="brand-details">
+                                <span class="brand-title">4rged</span>
+                                <span class="brand-subtitle">WORKSPACE</span>
+                            </div>
                         </div>
                     </div>
                     <nav class="sidebar-nav">

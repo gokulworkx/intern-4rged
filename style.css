@@ -42,27 +42,52 @@ html, body {
     height: 100vh;
 }
 
-/* macOS Window Controls */
+/* Sidebar Brand Header (Replaced macOS dots) */
 .sidebar-top {
-    margin-bottom: 28px;
+    margin-bottom: 24px;
 }
 
-.window-dots {
+.sidebar-brand {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+    padding: 6px 4px;
 }
 
-.dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    display: inline-block;
+.brand-icon-box {
+    width: 38px;
+    height: 38px;
+    background: #eff6ff;
+    border: 1.5px solid #dbeafe;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2563eb;
+    font-size: 16px;
+    flex-shrink: 0;
 }
 
-.dot-red { background-color: #ff5f56; }
-.dot-yellow { background-color: #ffbd2e; }
-.dot-green { background-color: #27c93f; }
+.brand-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.2;
+    letter-spacing: -0.3px;
+}
+
+.brand-subtitle {
+    font-size: 10px;
+    font-weight: 700;
+    color: #2563eb;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+}
 
 /* Sidebar Navigation Items */
 .sidebar-nav {
