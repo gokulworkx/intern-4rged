@@ -37,6 +37,22 @@ function ensureEverDoLayout() {
                             <i class="fa-solid fa-circle-check"></i>
                             <span>Completed</span>
                         </button>
+
+                        <div class="sidebar-section-divider"></div>
+                        <div class="sidebar-section-label">CATEGORIES</div>
+
+                        <button class="nav-item filter-btn" data-filter="work">
+                            <span class="category-dot dot-work"></span>
+                            <span>Work</span>
+                        </button>
+                        <button class="nav-item filter-btn" data-filter="personal">
+                            <span class="category-dot dot-personal"></span>
+                            <span>Personal</span>
+                        </button>
+                        <button class="nav-item filter-btn" data-filter="urgent">
+                            <span class="category-dot dot-urgent"></span>
+                            <span>Urgent</span>
+                        </button>
                     </nav>
                     <div class="sidebar-bottom">
                         <button id="quick-add-btn" class="floating-add-btn" title="Add New Task">
@@ -54,6 +70,10 @@ function ensureEverDoLayout() {
                             <button class="filter-btn active" data-filter="all">All</button>
                             <button class="filter-btn" data-filter="active">Active</button>
                             <button class="filter-btn" data-filter="completed">Completed</button>
+                            <span class="filter-divider"></span>
+                            <button class="filter-btn" data-filter="work">Work</button>
+                            <button class="filter-btn" data-filter="personal">Personal</button>
+                            <button class="filter-btn" data-filter="urgent">Urgent</button>
                         </div>
                     </header>
                     <div id="input-container">
@@ -176,7 +196,8 @@ if (dropdownBtn && dropdownWrapper) {
 }
 
 let editingIndex = null;
-let currentFilter = "all";
+let currentStatusFilter = "all";
+let currentCategoryFilter = "all";
 
 // Load stored todos with backward compatibility
 function getStoredTodos() {
@@ -215,15 +236,20 @@ function escapeHtml(str) {
 
 // Progress Bar Calculation
 function updateProgress() {
-    const total = storedTodo.length;
-    const completed = storedTodo.filter(t => t.completed).length;
+    const scopeTodos = currentCategoryFilter === "all" 
+        ? storedTodo 
+        : storedTodo.filter(t => (t.category || "personal").toLowerCase() === currentCategoryFilter);
+
+    const total = scopeTodos.length;
+    const completed = scopeTodos.filter(t => t.completed).length;
     const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
 
     if (progressBar) {
         progressBar.style.width = `${percentage}%`;
     }
     if (progressStats) {
-        progressStats.textContent = `${percentage}% (${completed} of ${total} completed)`;
+        const catLabel = currentCategoryFilter === "all" ? "" : ` in ${currentCategoryFilter.charAt(0).toUpperCase() + currentCategoryFilter.slice(1)}`;
+        progressStats.textContent = `${percentage}% (${completed} of ${total} completed${catLabel})`;
     }
 }
 
@@ -257,14 +283,38 @@ function handleAddtask() {
 function displayTodo() {
     todolist.innerHTML = "";
 
-    storedTodo.forEach((task, index) => {
-        // Filter logic: All / Active / Completed
-        if (currentFilter === "active" && task.completed) return;
-        if (currentFilter === "completed" && !task.completed) return;
+    const tasksWithIndex = storedTodo.map((task, idx) => ({ ...task, originalIndex: idx }));
 
+    const filtered = tasksWithIndex.filter(task => {
+        // Status filter: All / Active / Completed
+        if (currentStatusFilter === "active" && task.completed) return false;
+        if (currentStatusFilter === "completed" && !task.completed) return false;
+
+        // Category filter: All / Work / Personal / Urgent
+        if (currentCategoryFilter !== "all") {
+            if ((task.category || "personal").toLowerCase() !== currentCategoryFilter) {
+                return false;
+            }
+        }
+
+        return true;
+    });
+
+    if (filtered.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "empty-message";
+        const statusName = currentStatusFilter === "all" ? "" : `${currentStatusFilter} `;
+        const catName = currentCategoryFilter === "all" ? "" : `${currentCategoryFilter} `;
+        empty.textContent = `No ${statusName}${catName}tasks found.`;
+        todolist.appendChild(empty);
+        updateProgress();
+        return;
+    }
+
+    filtered.forEach(task => {
         const isDone = task.completed;
         const list = document.createElement("li");
-        list.setAttribute("data-index", index);
+        list.setAttribute("data-index", task.originalIndex);
         if (isDone) {
             list.classList.add("completed");
         }
@@ -280,7 +330,7 @@ function displayTodo() {
             <div class="card-header-row">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <input type="checkbox" class="task-checkbox" ${isDone ? "checked" : ""}>
-                    <span class="category-tag ${categoryClass}">${escapeHtml(category)}</span>
+                    <span class="category-tag ${categoryClass}" title="Filter by ${escapeHtml(category)}">${escapeHtml(category)}</span>
                 </div>
                 ${statusBadge}
             </div>
@@ -342,23 +392,77 @@ function handleUpdate(e) {
     }
 }
 
-// Filter Tabs Sync (Sidebar & Top Pills)
-filterBtns.forEach(btn => {
-    btn.addEventListener("click", () => {
-        const filterVal = btn.getAttribute("data-filter");
-        currentFilter = filterVal;
+// Filter Tabs Sync (Status and Category linked)
+function setFilter(type, value) {
+    const val = value.toLowerCase();
 
-        // Sync all filter buttons with matching data-filter
-        document.querySelectorAll(".filter-btn").forEach(b => {
-            if (b.getAttribute("data-filter") === filterVal) {
-                b.classList.add("active");
-            } else {
-                b.classList.remove("active");
-            }
-        });
+    if (type === "status") {
+        if (val === "all") {
+            currentStatusFilter = "all";
+            currentCategoryFilter = "all";
+        } else {
+            currentStatusFilter = val;
+        }
+    } else if (type === "category") {
+        if (currentCategoryFilter === val) {
+            // Clicking the active category again toggles it back to "all"
+            currentCategoryFilter = "all";
+        } else {
+            currentCategoryFilter = val;
+        }
+    }
 
-        displayTodo();
+    // Sync Status Filter Buttons
+    document.querySelectorAll(".filter-btn[data-filter='all'], .filter-btn[data-filter='active'], .filter-btn[data-filter='completed']").forEach(b => {
+        const btnVal = (b.getAttribute("data-filter") || "").toLowerCase();
+        if (btnVal === currentStatusFilter) {
+            b.classList.add("active");
+        } else {
+            b.classList.remove("active");
+        }
     });
+
+    // Sync Category Filter Buttons
+    document.querySelectorAll(".filter-btn[data-filter='work'], .filter-btn[data-filter='personal'], .filter-btn[data-filter='urgent']").forEach(b => {
+        const btnVal = (b.getAttribute("data-filter") || "").toLowerCase();
+        if (btnVal === currentCategoryFilter) {
+            b.classList.add("active");
+        } else {
+            b.classList.remove("active");
+        }
+    });
+
+    // Update section heading
+    const headingText = document.getElementById("section-heading-text");
+    if (headingText) {
+        let statusPart = currentStatusFilter === "all" ? "" : (currentStatusFilter === "active" ? "Active " : "Completed ");
+        let catPart = currentCategoryFilter === "all" ? "Tasks" : `${currentCategoryFilter.charAt(0).toUpperCase() + currentCategoryFilter.slice(1)} Tasks`;
+        headingText.textContent = `${statusPart}${catPart}`.trim() || "Task Items";
+    }
+
+    displayTodo();
+}
+
+// Global click delegation for filter buttons and category tags
+document.addEventListener("click", (e) => {
+    const filterBtn = e.target.closest(".filter-btn");
+    if (filterBtn) {
+        const filterVal = (filterBtn.getAttribute("data-filter") || "").toLowerCase();
+        if (["all", "active", "completed"].includes(filterVal)) {
+            setFilter("status", filterVal);
+        } else if (["work", "personal", "urgent"].includes(filterVal)) {
+            setFilter("category", filterVal);
+        }
+        return;
+    }
+
+    // Clicking a category tag on a task card filters by that category
+    const catTag = e.target.closest(".category-tag");
+    if (catTag) {
+        const catName = catTag.textContent.trim().toLowerCase();
+        setFilter("category", catName);
+        return;
+    }
 });
 
 // Quick Add Button in Sidebar
