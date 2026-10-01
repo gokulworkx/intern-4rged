@@ -81,11 +81,29 @@
                         <i class="fa-solid fa-pen-to-square input-icon"></i>
                         <input id="input" placeholder="Enter a new task..." autocomplete="off">
                     </div>
-                    <select id="category-select" class="category-select-box" aria-label="Task Category">
-                        <option value="Work">Work</option>
-                        <option value="Personal">Personal</option>
-                        <option value="Urgent">Urgent</option>
-                    </select>
+                    <!-- Curvy Custom Category Dropdown -->
+                    <div class="custom-dropdown" id="category-dropdown-wrapper">
+                        <button type="button" class="category-dropdown-btn" id="category-dropdown-btn" aria-label="Select Task Category">
+                            <span class="category-dot dot-work" id="selected-category-dot"></span>
+                            <span id="selected-category-text">Work</span>
+                            <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+                        </button>
+                        <div class="custom-dropdown-menu" id="category-dropdown-menu">
+                            <div class="dropdown-item active" data-value="Work">
+                                <span class="category-dot dot-work"></span>
+                                <span>Work</span>
+                            </div>
+                            <div class="dropdown-item" data-value="Personal">
+                                <span class="category-dot dot-personal"></span>
+                                <span>Personal</span>
+                            </div>
+                            <div class="dropdown-item" data-value="Urgent">
+                                <span class="category-dot dot-urgent"></span>
+                                <span>Urgent</span>
+                            </div>
+                        </div>
+                        <input type="hidden" id="category-select" value="Work">
+                    </div>
                     <button id="addbtn">ADD</button>
                 </section>
             </div>

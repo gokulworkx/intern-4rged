@@ -62,11 +62,28 @@ function ensureEverDoLayout() {
                                 <i class="fa-solid fa-pen-to-square input-icon"></i>
                                 <input id="input" placeholder="Enter a new task..." autocomplete="off">
                             </div>
-                            <select id="category-select" class="category-select-box" aria-label="Task Category">
-                                <option value="Work">Work</option>
-                                <option value="Personal">Personal</option>
-                                <option value="Urgent">Urgent</option>
-                            </select>
+                            <div class="custom-dropdown" id="category-dropdown-wrapper">
+                                <button type="button" class="category-dropdown-btn" id="category-dropdown-btn" aria-label="Select Task Category">
+                                    <span class="category-dot dot-work" id="selected-category-dot"></span>
+                                    <span id="selected-category-text">Work</span>
+                                    <i class="fa-solid fa-chevron-down dropdown-arrow"></i>
+                                </button>
+                                <div class="custom-dropdown-menu" id="category-dropdown-menu">
+                                    <div class="dropdown-item active" data-value="Work">
+                                        <span class="category-dot dot-work"></span>
+                                        <span>Work</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="Personal">
+                                        <span class="category-dot dot-personal"></span>
+                                        <span>Personal</span>
+                                    </div>
+                                    <div class="dropdown-item" data-value="Urgent">
+                                        <span class="category-dot dot-urgent"></span>
+                                        <span>Urgent</span>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="category-select" value="Work">
+                            </div>
                             <button id="addbtn">ADD</button>
                         </section>
                     </div>
@@ -111,6 +128,52 @@ const filterBtns = document.querySelectorAll(".filter-btn");
 const quickAddBtn = document.getElementById("quick-add-btn");
 const progressBar = document.getElementById("progress-bar");
 const progressStats = document.getElementById("progress-stats");
+
+// Custom Curvy Dropdown References & Logic
+const dropdownWrapper = document.getElementById("category-dropdown-wrapper");
+const dropdownBtn = document.getElementById("category-dropdown-btn");
+const dropdownMenu = document.getElementById("category-dropdown-menu");
+const selectedCategoryText = document.getElementById("selected-category-text");
+const selectedCategoryDot = document.getElementById("selected-category-dot");
+
+function setCategoryValue(val) {
+    if (categorySelect) categorySelect.value = val;
+    if (selectedCategoryText) selectedCategoryText.textContent = val;
+    if (selectedCategoryDot) {
+        selectedCategoryDot.className = `category-dot dot-${val.toLowerCase()}`;
+    }
+    if (dropdownMenu) {
+        dropdownMenu.querySelectorAll(".dropdown-item").forEach(item => {
+            if (item.getAttribute("data-value") === val) {
+                item.classList.add("active");
+            } else {
+                item.classList.remove("active");
+            }
+        });
+    }
+}
+
+if (dropdownBtn && dropdownWrapper) {
+    dropdownBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        dropdownWrapper.classList.toggle("open");
+    });
+
+    if (dropdownMenu) {
+        dropdownMenu.querySelectorAll(".dropdown-item").forEach(item => {
+            item.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const val = item.getAttribute("data-value");
+                setCategoryValue(val);
+                dropdownWrapper.classList.remove("open");
+            });
+        });
+    }
+
+    document.addEventListener("click", () => {
+        dropdownWrapper.classList.remove("open");
+    });
+}
 
 let editingIndex = null;
 let currentFilter = "all";
@@ -186,7 +249,7 @@ function handleAddtask() {
 
     saveTodos();
     inputbox.value = "";
-    if (categorySelect) categorySelect.value = "Work";
+    setCategoryValue("Work");
     displayTodo();
 }
 
@@ -262,7 +325,7 @@ function handleUpdate(e) {
             editingIndex = null;
             addbtn.innerHTML = "ADD";
             inputbox.value = "";
-            if (categorySelect) categorySelect.value = "Work";
+            setCategoryValue("Work");
         }
         saveTodos();
         displayTodo();
@@ -273,9 +336,7 @@ function handleUpdate(e) {
     if (e.target.classList.contains("edit-btn") || e.target.closest(".edit-btn")) {
         editingIndex = index;
         inputbox.value = storedTodo[index].text;
-        if (categorySelect) {
-            categorySelect.value = storedTodo[index].category || "Work";
-        }
+        setCategoryValue(storedTodo[index].category || "Work");
         addbtn.innerHTML = "Save";
         inputbox.focus();
     }
