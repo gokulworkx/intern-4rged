@@ -1,26 +1,43 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>TODO list</title>
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
+    <header id="input-container">
+        <h1>TODO list</h1>
+        <button id="theme-toggle" type="button" aria-pressed="false">Dark mode</button>
+    </header>
 
-    <div id="input-container">
-        <h3>TODO list</h3>
-        <section id="inner_cont"><input id="input" id="text" placeholder="Enter the list">
-        <button id="addbtn">ADD</button></section>
-    </div>
+    <main>
+        <form id="task-form">
+            <label class="task-field task-name" for="task-input">
+                <span>Task</span>
+                <input id="task-input" type="text" placeholder="What needs doing?" required>
+            </label>
+            <label class="task-field" for="due-date">
+                <span>Due date</span>
+                <input id="due-date" type="date">
+            </label>
+            <label class="task-field" for="priority">
+                <span>Priority</span>
+                <select id="priority">
+                    <option value="High">High</option>
+                    <option value="Medium" selected>Medium</option>
+                    <option value="Low">Low</option>
+                </select>
+            </label>
+            <button id="addbtn" type="submit">ADD</button>
+        </form>
 
-    <div id="todo-container">
-        <ul>
-           
-        </ul>
-    </div>
+        <section id="todo-container" aria-label="Tasks">
+            <ul aria-live="polite"></ul>
+        </section>
+    </main>
 
-    
     <script src="./script.js"></script>
 </body>
 </html>

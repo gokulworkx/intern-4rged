@@ -1,102 +1,142 @@
-let inputbox=document.querySelector("input");
-let addbtn=document.getElementById("addbtn");
-let todolist=document.querySelector("ul");
-let syntheticE;
-let editingIndex;
+const inputbox = document.getElementById("task-input");
+const dueDateInput = document.getElementById("due-date");
+const priorityInput = document.getElementById("priority");
+const taskForm = document.getElementById("task-form");
+const addbtn = document.getElementById("addbtn");
+const todolist = document.querySelector("#todo-container ul");
+const themeToggle = document.getElementById("theme-toggle");
+let editingIndex = null;
 
-// localStorage.setItem("todos",JSON.parse([]));
-let storedTodo = JSON.parse(localStorage.getItem("todos")) || [];
-function handleAddtask(){
-    if(inputbox.value.trim().length>0){
-        let inputboxvalue=inputbox.value.trim();
-        if(addbtn.innerHTML==="Save"){
-            storedTodo.splice(editingIndex,1,inputboxvalue);
-            localStorage.setItem("todos",JSON.stringify(storedTodo));
-            inputbox.value="";
-        }else{
-            
-            console.log(inputboxvalue);
-            storedTodo.push(inputboxvalue);
-            console.log(storedTodo);
-            localStorage.setItem("todos",JSON.stringify(storedTodo))
+let storedTodo = (JSON.parse(localStorage.getItem("todos")) || []).map((task) =>
+    typeof task === "string"
+        ? { text: task, dueDate: "", priority: "Medium" }
+        : {
+            text: task.text,
+            dueDate: task.dueDate || "",
+            priority: ["High", "Medium", "Low"].includes(task.priority)
+                ? task.priority
+                : "Medium"
         }
+);
+
+function saveTodos() {
+    localStorage.setItem("todos", JSON.stringify(storedTodo));
+}
+
+function resetForm() {
+    taskForm.reset();
+    addbtn.textContent = "ADD";
+    editingIndex = null;
+}
+
+function handleAddTask(event) {
+    event.preventDefault();
+    const task = {
+        text: inputbox.value.trim(),
+        dueDate: dueDateInput.value,
+        priority: priorityInput.value
+    };
+
+    if (!task.text) return;
+
+    if (editingIndex === null) {
+        storedTodo.push(task);
+    } else {
+        storedTodo[editingIndex] = task;
     }
-    todolist.innerHTML="";
+
+    saveTodos();
     displayTodo();
-    inputbox.value="";
+    resetForm();
 }
 
-function displayTodo(){
-      storedTodo.forEach((task) => {
-        let list = document.createElement("li");
-        list.innerHTML =`
-        <p class="task">${task}</p>
-                <div class="btn-container">
-                <button class="edit-btn">Edit</button>
-                <button class="delete-btn">Delete</button>
-                </div> `;
-                todolist.append(list);
-                console.log("hi");
-      });  
+function displayTodo() {
+    todolist.replaceChildren();
+
+    storedTodo.forEach((task, index) => {
+        const list = document.createElement("li");
+        list.className = `task-item priority-${task.priority.toLowerCase()}`;
+
+        const title = document.createElement("p");
+        title.className = "task";
+        title.textContent = task.text;
+
+        const metadata = document.createElement("div");
+        metadata.className = "task-meta";
+
+        const priorityBadge = document.createElement("span");
+        priorityBadge.className = `priority-badge priority-${task.priority.toLowerCase()}`;
+        priorityBadge.textContent = `${task.priority} priority`;
+        metadata.append(priorityBadge);
+
+        if (task.dueDate) {
+            const dueDate = document.createElement("time");
+            dueDate.dateTime = task.dueDate;
+            dueDate.textContent = `Due ${new Date(`${task.dueDate}T00:00:00`).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+                year: "numeric"
+            })}`;
+            metadata.append(dueDate);
+        }
+
+        const buttons = document.createElement("div");
+        buttons.className = "btn-container";
+
+        const editButton = document.createElement("button");
+        editButton.className = "edit-btn";
+        editButton.type = "button";
+        editButton.dataset.action = "edit";
+        editButton.dataset.index = index;
+        editButton.textContent = "Edit";
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete-btn";
+        deleteButton.type = "button";
+        deleteButton.dataset.action = "delete";
+        deleteButton.dataset.index = index;
+        deleteButton.textContent = "Delete";
+
+        buttons.append(editButton, deleteButton);
+        list.append(title, metadata, buttons);
+        todolist.append(list);
+    });
 }
-displayTodo();
 
-function handleUpdate(e){
-    if(e.target.innerHTML == "Delete"){
-        console.log(e.target.parentElement.previousElementSibling.innerHTML);
-        storedTodo = storedTodo.filter(
-        (t,i) => t!=e.target.parentElement.previousElementSibling.innerHTML);
+function handleTaskAction(event) {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
 
-        localStorage.setItem("todos",JSON.stringify(storedTodo));
-        todolist.innerHTML="";
-        displayTodo(); 
-    }else if(e.target.innerHTML=="Edit"){
-        storedTodo.find((t,i)=> {
-            editingIndex = i;
-            return t == e.target.parentElement.previousElementSibling.innerHTML;
-        })
-        console.log(editingIndex);
-
-        inputbox.value = e.target.parentElement.previousElementSibling.innerHTML;
-        addbtn.innerHTML = "Save";
-
+    const index = Number(button.dataset.index);
+    if (button.dataset.action === "delete") {
+        storedTodo.splice(index, 1);
+        saveTodos();
+        if (editingIndex !== null) resetForm();
+        displayTodo();
+        return;
     }
 
+    const task = storedTodo[index];
+    editingIndex = index;
+    inputbox.value = task.text;
+    dueDateInput.value = task.dueDate;
+    priorityInput.value = task.priority;
+    addbtn.textContent = "Save";
+    inputbox.focus();
 }
 
-addbtn.addEventListener("click",handleAddtask)
-todolist .addEventListener("click",handleUpdate);
+function setTheme(isDark) {
+    document.documentElement.dataset.theme = isDark ? "dark" : "light";
+    themeToggle.textContent = isDark ? "Light mode" : "Dark mode";
+    themeToggle.setAttribute("aria-pressed", String(isDark));
+    localStorage.setItem("theme", isDark ? "dark" : "light");
+}
 
-// function handleAddTask(){
-//     if(inputBox.value.trim().length>0){
-//         let inputBoxValue=inputBox.value.trim();
-//         if(addBtn.innerHTML="Save"){
-//             syntheticE.target.parentElement.previousElementSibling.innerHTML=inputBoxValue;
-//             addBtn.innerHTML="Add";
-//         }else{
-//         let list=document.createElement("li");
-//         list.innerHTML=`
-//         <p class="task">${inputBoxValue}</p>
-//                 <div class="btn-container">
-//                 <button class="edit-btn">Edit</button>
-//                 <button class="delete-btn">Delete</button>
-//                 </div>
-//         `;
-//         todolist.append(list);
-//         }
-//     }
-//     inputBox.value="";
-// }
+taskForm.addEventListener("submit", handleAddTask);
+todolist.addEventListener("click", handleTaskAction);
+themeToggle.addEventListener("click", () => {
+    setTheme(document.documentElement.dataset.theme !== "dark");
+});
 
-// function handleUpdate(e){
-//     if(e.target.innerHTML == "Delete"){
-//         e.target.parentElement.parentElement.remove();
-//     }else if(e.target.innerHTML=="Edit"){
-//         inputBox.value=e.target.parentElement.previousElementSibling.innerHTML;
-//         addBtn.innerHTML="Save"
-//         syntheticE=e;
-//     }
-// }
-
-// addBtn.addEventListener("click",handleAddTask)
-// addBtn.addEventListener("click",handleUpdate);
+setTheme(localStorage.getItem("theme") === "dark");
+displayTodo();
