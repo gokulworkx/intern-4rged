@@ -1,102 +1,170 @@
-let inputbox=document.querySelector("input");
-let addbtn=document.getElementById("addbtn");
-let todolist=document.querySelector("ul");
-let syntheticE;
-let editingIndex;
+const inputbox = document.getElementById("input");
+const categorySelect = document.getElementById("category-select");
+const addbtn = document.getElementById("addbtn");
+const todolist = document.querySelector("#todo-container ul");
+const progressBar = document.getElementById("progress-bar");
+const progressStats = document.getElementById("progress-stats");
 
-// localStorage.setItem("todos",JSON.parse([]));
-let storedTodo = JSON.parse(localStorage.getItem("todos")) || [];
-function handleAddtask(){
-    if(inputbox.value.trim().length>0){
-        let inputboxvalue=inputbox.value.trim();
-        if(addbtn.innerHTML==="Save"){
-            storedTodo.splice(editingIndex,1,inputboxvalue);
-            localStorage.setItem("todos",JSON.stringify(storedTodo));
-            inputbox.value="";
-        }else{
-            
-            console.log(inputboxvalue);
-            storedTodo.push(inputboxvalue);
-            console.log(storedTodo);
-            localStorage.setItem("todos",JSON.stringify(storedTodo))
+let editingIndex = null;
+
+// Load and normalize existing data from localStorage (handles old string-only items)
+let rawTodos = JSON.parse(localStorage.getItem("todos")) || [];
+let storedTodo = rawTodos.map(item => {
+    if (typeof item === "string") {
+        return { text: item, category: "Personal", completed: false };
+    }
+    return {
+        text: item.text || "",
+        category: item.category || "Personal",
+        completed: Boolean(item.completed)
+    };
+});
+saveToLocalStorage();
+
+// Helper: Escape HTML to prevent injection
+function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// Save todos array to localStorage
+function saveToLocalStorage() {
+    localStorage.setItem("todos", JSON.stringify(storedTodo));
+}
+
+// Update the visual progress bar and text statistics
+function updateProgress() {
+    const total = storedTodo.length;
+    const completed = storedTodo.filter(t => t.completed).length;
+    const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+    if (progressBar) {
+        progressBar.style.width = percentage + "%";
+    }
+    if (progressStats) {
+        progressStats.textContent = `${percentage}% Completed (${completed}/${total})`;
+    }
+}
+
+// Render all todos
+function displayTodo() {
+    todolist.innerHTML = "";
+
+    storedTodo.forEach((task, index) => {
+        const list = document.createElement("li");
+        if (task.completed) {
+            list.classList.add("completed");
         }
+
+        const categoryClass = `tag-${(task.category || "personal").toLowerCase()}`;
+
+        list.innerHTML = `
+            <div class="card-header">
+                <span class="category-tag ${categoryClass}">${escapeHtml(task.category || "Personal")}</span>
+                <label class="status-toggle">
+                    <input type="checkbox" class="task-checkbox" data-index="${index}" ${task.completed ? "checked" : ""}>
+                    <span>${task.completed ? "Done" : "Pending"}</span>
+                </label>
+            </div>
+            <p class="task ${task.completed ? "completed-text" : ""}">${escapeHtml(task.text)}</p>
+            <div class="btn-container">
+                <button class="edit-btn" data-index="${index}">Edit</button>
+                <button class="delete-btn" data-index="${index}">Delete</button>
+            </div>
+        `;
+
+        todolist.appendChild(list);
+    });
+
+    updateProgress();
+}
+
+// Add or save task
+function handleAddtask() {
+    const textValue = inputbox.value.trim();
+    if (textValue.length === 0) return;
+
+    const selectedCategory = categorySelect.value;
+
+    if (editingIndex !== null && editingIndex >= 0 && editingIndex < storedTodo.length) {
+        // Update existing task
+        storedTodo[editingIndex].text = textValue;
+        storedTodo[editingIndex].category = selectedCategory;
+        editingIndex = null;
+        addbtn.textContent = "ADD";
+    } else {
+        // Add new task
+        storedTodo.push({
+            text: textValue,
+            category: selectedCategory,
+            completed: false
+        });
     }
-    todolist.innerHTML="";
+
+    saveToLocalStorage();
     displayTodo();
-    inputbox.value="";
+
+    inputbox.value = "";
+    categorySelect.value = "Work";
 }
 
-function displayTodo(){
-      storedTodo.forEach((task) => {
-        let list = document.createElement("li");
-        list.innerHTML =`
-        <p class="task">${task}</p>
-                <div class="btn-container">
-                <button class="edit-btn">Edit</button>
-                <button class="delete-btn">Delete</button>
-                </div> `;
-                todolist.append(list);
-                console.log("hi");
-      });  
-}
-displayTodo();
-
-function handleUpdate(e){
-    if(e.target.innerHTML == "Delete"){
-        console.log(e.target.parentElement.previousElementSibling.innerHTML);
-        storedTodo = storedTodo.filter(
-        (t,i) => t!=e.target.parentElement.previousElementSibling.innerHTML);
-
-        localStorage.setItem("todos",JSON.stringify(storedTodo));
-        todolist.innerHTML="";
-        displayTodo(); 
-    }else if(e.target.innerHTML=="Edit"){
-        storedTodo.find((t,i)=> {
-            editingIndex = i;
-            return t == e.target.parentElement.previousElementSibling.innerHTML;
-        })
-        console.log(editingIndex);
-
-        inputbox.value = e.target.parentElement.previousElementSibling.innerHTML;
-        addbtn.innerHTML = "Save";
-
+// Handle clicks inside the todo list (checkbox toggle, edit, delete)
+function handleListAction(e) {
+    // Checkbox toggle
+    if (e.target.classList.contains("task-checkbox")) {
+        const index = Number(e.target.dataset.index);
+        if (!isNaN(index) && storedTodo[index]) {
+            storedTodo[index].completed = e.target.checked;
+            saveToLocalStorage();
+            displayTodo();
+        }
+        return;
     }
 
+    // Delete task
+    if (e.target.classList.contains("delete-btn")) {
+        const index = Number(e.target.dataset.index);
+        if (!isNaN(index) && storedTodo[index]) {
+            if (editingIndex === index) {
+                editingIndex = null;
+                addbtn.textContent = "ADD";
+                inputbox.value = "";
+            } else if (editingIndex !== null && editingIndex > index) {
+                editingIndex--;
+            }
+
+            storedTodo.splice(index, 1);
+            saveToLocalStorage();
+            displayTodo();
+        }
+        return;
+    }
+
+    // Edit task
+    if (e.target.classList.contains("edit-btn")) {
+        const index = Number(e.target.dataset.index);
+        if (!isNaN(index) && storedTodo[index]) {
+            editingIndex = index;
+            inputbox.value = storedTodo[index].text;
+            categorySelect.value = storedTodo[index].category || "Work";
+            addbtn.textContent = "Save";
+            inputbox.focus();
+        }
+        return;
+    }
 }
 
-addbtn.addEventListener("click",handleAddtask)
-todolist .addEventListener("click",handleUpdate);
+// Event Listeners
+addbtn.addEventListener("click", handleAddtask);
+todolist.addEventListener("click", handleListAction);
 
-// function handleAddTask(){
-//     if(inputBox.value.trim().length>0){
-//         let inputBoxValue=inputBox.value.trim();
-//         if(addBtn.innerHTML="Save"){
-//             syntheticE.target.parentElement.previousElementSibling.innerHTML=inputBoxValue;
-//             addBtn.innerHTML="Add";
-//         }else{
-//         let list=document.createElement("li");
-//         list.innerHTML=`
-//         <p class="task">${inputBoxValue}</p>
-//                 <div class="btn-container">
-//                 <button class="edit-btn">Edit</button>
-//                 <button class="delete-btn">Delete</button>
-//                 </div>
-//         `;
-//         todolist.append(list);
-//         }
-//     }
-//     inputBox.value="";
-// }
+// Support pressing Enter key in the input box
+inputbox.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+        handleAddtask();
+    }
+});
 
-// function handleUpdate(e){
-//     if(e.target.innerHTML == "Delete"){
-//         e.target.parentElement.parentElement.remove();
-//     }else if(e.target.innerHTML=="Edit"){
-//         inputBox.value=e.target.parentElement.previousElementSibling.innerHTML;
-//         addBtn.innerHTML="Save"
-//         syntheticE=e;
-//     }
-// }
-
-// addBtn.addEventListener("click",handleAddTask)
-// addBtn.addEventListener("click",handleUpdate);
+// Initial display on page load
+displayTodo();
