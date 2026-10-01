@@ -3,39 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TODO List</title>
+    <title>4rged Todo</title>
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
+    <div class="app-shell">
+        <header class="topbar">
+            <div class="title-wrap">
+                <span class="eyebrow">4rged • MVP</span>
+                <h1>Todo Board</h1>
+            </div>
+            <label class="search-wrap" aria-label="Search tasks">
+                <span class="search-icon">⌕</span>
+                <input id="search-input" type="search" placeholder="Search tasks...">
+            </label>
+        </header>
 
-    <div id="input-container">
-        <h3>TODO list</h3>
-        <section id="inner_cont">
-            <input id="input" placeholder="Enter a task...">
-            <select id="category-select">
-                <option value="Work">Work</option>
-                <option value="Personal">Personal</option>
-                <option value="Urgent">Urgent</option>
-            </select>
-            <button id="addbtn">ADD</button>
+        <section class="toolbar">
+            <div class="input-group">
+                <input id="input" type="text" placeholder="Enter a task..." aria-label="Task name">
+                <select id="category-select" aria-label="Task category">
+                    <option value="Work">Work</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Urgent">Urgent</option>
+                </select>
+                <button id="addbtn" type="button">ADD</button>
+            </div>
+            <button id="clear-completed" class="secondary-btn" type="button">Clear Completed</button>
         </section>
-    </div>
 
-    <!-- Progress bar section -->
-    <div id="progress-container">
-        <div class="progress-header">
-            <span class="progress-title">Task Progress</span>
-            <span id="progress-stats">0% Completed (0/0)</span>
-        </div>
-        <div class="progress-track">
-            <div id="progress-bar"></div>
-        </div>
-    </div>
+        <section id="progress-container" aria-live="polite">
+            <div class="progress-header">
+                <span class="progress-title">Task Progress</span>
+                <span id="progress-stats">0% Completed (0/0)</span>
+            </div>
+            <div class="progress-track">
+                <div id="progress-bar"></div>
+            </div>
+        </section>
 
-    <div id="todo-container">
-        <ul>
-           
-        </ul>
+        <main id="todo-container">
+            <ul id="task-list" aria-live="polite"></ul>
+        </main>
     </div>
 
     <script src="./script.js"></script>
