@@ -3,24 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>EverDo • Todo App</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
-    <div id="input-container">
-        <h3>TODO list</h3>
-        <section id="inner_cont"><input id="input" id="text" placeholder="Enter the list">
-        <button id="addbtn">ADD</button></section>
+    <!-- Main Floating Window Container -->
+    <div class="window-container">
+        
+        <!-- Left Sidebar -->
+        <aside class="sidebar">
+            <!-- macOS Window Controls -->
+            <div class="sidebar-top">
+                <div class="window-dots">
+                    <span class="dot dot-red"></span>
+                    <span class="dot dot-yellow"></span>
+                    <span class="dot dot-green"></span>
+                </div>
+            </div>
+
+            <!-- Navigation Filter Menu -->
+            <nav class="sidebar-nav">
+                <button class="nav-item filter-btn active" data-filter="all">
+                    <i class="fa-solid fa-inbox"></i>
+                    <span>All Tasks</span>
+                </button>
+                <button class="nav-item filter-btn" data-filter="active">
+                    <i class="fa-regular fa-circle-dot"></i>
+                    <span>Active</span>
+                </button>
+                <button class="nav-item filter-btn" data-filter="completed">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Completed</span>
+                </button>
+            </nav>
+
+            <!-- Sidebar Bottom Action -->
+            <div class="sidebar-bottom">
+                <button id="quick-add-btn" class="floating-add-btn" title="Add New Task">
+                    <i class="fa-solid fa-plus"></i>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Right Main Content Area -->
+        <main class="main-content">
+            
+            <!-- Top Header Section -->
+            <header class="content-header">
+                <div class="header-titles">
+                    <span class="sub-badge">EverDo — MVP</span>
+                    <h1 class="main-title">Tasks</h1>
+                </div>
+
+                <!-- Top Filter Pills -->
+                <div id="filter-container" class="top-filter-pills">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="active">Active</button>
+                    <button class="filter-btn" data-filter="completed">Completed</button>
+                </div>
+            </header>
+
+            <!-- Task Input Container -->
+            <div id="input-container">
+                <section id="inner_cont">
+                    <div class="input-field-box">
+                        <i class="fa-solid fa-pen-to-square input-icon"></i>
+                        <input id="input" placeholder="Enter a new task..." autocomplete="off">
+                    </div>
+                    <button id="addbtn">ADD</button>
+                </section>
+            </div>
+
+            <!-- Section Subheading -->
+            <div class="section-heading">
+                <h2 id="section-heading-text">Task Items</h2>
+            </div>
+
+            <!-- Todo Items Grid -->
+            <div id="todo-container">
+                <ul id="task-list">
+                    <!-- Tasks dynamically rendered here -->
+                </ul>
+            </div>
+
+        </main>
     </div>
 
-    <div id="todo-container">
-        <ul>
-           
-        </ul>
-    </div>
-
-    
     <script src="./script.js"></script>
 </body>
 </html>
