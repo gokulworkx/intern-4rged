@@ -62,8 +62,22 @@ function ensureEverDoLayout() {
                                 <i class="fa-solid fa-pen-to-square input-icon"></i>
                                 <input id="input" placeholder="Enter a new task..." autocomplete="off">
                             </div>
+                            <select id="category-select" class="category-select-box" aria-label="Task Category">
+                                <option value="Work">Work</option>
+                                <option value="Personal">Personal</option>
+                                <option value="Urgent">Urgent</option>
+                            </select>
                             <button id="addbtn">ADD</button>
                         </section>
+                    </div>
+                    <div id="progress-container">
+                        <div class="progress-header">
+                            <span class="progress-title"><i class="fa-solid fa-chart-pie"></i> Completion Progress</span>
+                            <span id="progress-stats">0% (0 of 0 completed)</span>
+                        </div>
+                        <div class="progress-track">
+                            <div id="progress-bar"></div>
+                        </div>
                     </div>
                     <div class="section-heading">
                         <h2 id="section-heading-text">Task Items</h2>
@@ -90,10 +104,13 @@ ensureEverDoLayout();
 
 // DOM Element References
 const inputbox = document.querySelector("#input");
+const categorySelect = document.getElementById("category-select");
 const addbtn = document.getElementById("addbtn");
 const todolist = document.querySelector("#task-list") || document.querySelector("ul");
 const filterBtns = document.querySelectorAll(".filter-btn");
 const quickAddBtn = document.getElementById("quick-add-btn");
+const progressBar = document.getElementById("progress-bar");
+const progressStats = document.getElementById("progress-stats");
 
 let editingIndex = null;
 let currentFilter = "all";
@@ -104,10 +121,11 @@ function getStoredTodos() {
         let raw = JSON.parse(localStorage.getItem("todos")) || [];
         return raw.map(item => {
             if (typeof item === "string") {
-                return { text: item, completed: false };
+                return { text: item, category: "Personal", completed: false };
             }
             return {
                 text: item.text || "",
+                category: item.category || "Personal",
                 completed: Boolean(item.completed)
             };
         });
@@ -125,21 +143,50 @@ function saveTodos() {
 // Initial standardize
 saveTodos();
 
+// Helper: Escape HTML to avoid XSS
+function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// Progress Bar Calculation
+function updateProgress() {
+    const total = storedTodo.length;
+    const completed = storedTodo.filter(t => t.completed).length;
+    const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+    if (progressBar) {
+        progressBar.style.width = `${percentage}%`;
+    }
+    if (progressStats) {
+        progressStats.textContent = `${percentage}% (${completed} of ${total} completed)`;
+    }
+}
+
 // Handle Add / Edit Task
 function handleAddtask() {
     const textVal = inputbox.value.trim();
     if (textVal.length === 0) return;
 
+    const catVal = categorySelect ? categorySelect.value : "Work";
+
     if (addbtn.innerHTML.includes("Save") && editingIndex !== null) {
         storedTodo[editingIndex].text = textVal;
+        if (categorySelect) storedTodo[editingIndex].category = catVal;
         addbtn.innerHTML = "ADD";
         editingIndex = null;
     } else {
-        storedTodo.push({ text: textVal, completed: false });
+        storedTodo.push({
+            text: textVal,
+            category: catVal,
+            completed: false
+        });
     }
 
     saveTodos();
     inputbox.value = "";
+    if (categorySelect) categorySelect.value = "Work";
     displayTodo();
 }
 
@@ -159,17 +206,23 @@ function displayTodo() {
             list.classList.add("completed");
         }
 
+        const category = task.category || "Personal";
+        const categoryClass = `tag-${category.toLowerCase()}`;
+
         const statusBadge = isDone 
             ? `<span class="status-badge completed-badge"><i class="fa-solid fa-check"></i> Done</span>`
             : `<span class="status-badge active-badge"><i class="fa-regular fa-circle-dot"></i> Active</span>`;
 
         list.innerHTML = `
             <div class="card-header-row">
-                <input type="checkbox" class="task-checkbox" ${isDone ? "checked" : ""}>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" class="task-checkbox" ${isDone ? "checked" : ""}>
+                    <span class="category-tag ${categoryClass}">${escapeHtml(category)}</span>
+                </div>
                 ${statusBadge}
             </div>
             <div class="task-content-wrapper">
-                <p class="task">${task.text}</p>
+                <p class="task">${escapeHtml(task.text)}</p>
             </div>
             <div class="btn-container">
                 <button class="edit-btn"><i class="fa-solid fa-pen"></i> Edit</button>
@@ -178,6 +231,8 @@ function displayTodo() {
         `;
         todolist.appendChild(list);
     });
+
+    updateProgress();
 }
 
 // Event Delegation for Task Actions (Checkbox, Edit, Delete)
@@ -207,6 +262,7 @@ function handleUpdate(e) {
             editingIndex = null;
             addbtn.innerHTML = "ADD";
             inputbox.value = "";
+            if (categorySelect) categorySelect.value = "Work";
         }
         saveTodos();
         displayTodo();
@@ -217,6 +273,9 @@ function handleUpdate(e) {
     if (e.target.classList.contains("edit-btn") || e.target.closest(".edit-btn")) {
         editingIndex = index;
         inputbox.value = storedTodo[index].text;
+        if (categorySelect) {
+            categorySelect.value = storedTodo[index].category || "Work";
+        }
         addbtn.innerHTML = "Save";
         inputbox.focus();
     }

@@ -81,8 +81,24 @@
                         <i class="fa-solid fa-pen-to-square input-icon"></i>
                         <input id="input" placeholder="Enter a new task..." autocomplete="off">
                     </div>
+                    <select id="category-select" class="category-select-box" aria-label="Task Category">
+                        <option value="Work">Work</option>
+                        <option value="Personal">Personal</option>
+                        <option value="Urgent">Urgent</option>
+                    </select>
                     <button id="addbtn">ADD</button>
                 </section>
+            </div>
+
+            <!-- Visual Progress Bar -->
+            <div id="progress-container">
+                <div class="progress-header">
+                    <span class="progress-title"><i class="fa-solid fa-chart-pie"></i> Completion Progress</span>
+                    <span id="progress-stats">0% (0 of 0 completed)</span>
+                </div>
+                <div class="progress-track">
+                    <div id="progress-bar"></div>
+                </div>
             </div>
 
             <!-- Section Subheading -->
